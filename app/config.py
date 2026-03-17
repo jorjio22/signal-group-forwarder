@@ -6,7 +6,8 @@ from pathlib import Path
 
 
 BASE_DIR = Path(__file__).resolve().parent.parent
-DATA_DIR = BASE_DIR / "data"
+DEFAULT_DATA_DIR = Path("/data") if os.name != "nt" else BASE_DIR / "data"
+DATA_DIR = Path(os.getenv("APP_DATA_DIR", DEFAULT_DATA_DIR))
 MIGRATIONS_DIR = BASE_DIR / "migrations"
 TEMPLATES_DIR = BASE_DIR / "app" / "web" / "templates"
 STATIC_DIR = BASE_DIR / "app" / "web" / "static"
@@ -31,9 +32,9 @@ class AppConfig:
 
 
 def load_config() -> AppConfig:
-    DATA_DIR.mkdir(exist_ok=True)
+    DATA_DIR.mkdir(parents=True, exist_ok=True)
     signal_config_dir = DATA_DIR / "signal-cli"
-    signal_config_dir.mkdir(exist_ok=True)
+    signal_config_dir.mkdir(parents=True, exist_ok=True)
 
     return AppConfig(
         app_name=os.getenv("APP_NAME", "Signal Forwarder"),
