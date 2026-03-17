@@ -7,12 +7,13 @@ ENV PYTHONDONTWRITEBYTECODE=1 \
     APP_DB_PATH=/data/app.sqlite \
     SIGNAL_CONFIG_DIR=/data/signal-cli \
     SIGNAL_CLI_EXECUTABLE=/opt/signal-cli/bin/signal-cli \
-    TZ=Europe/Kyiv
+    TZ=Europe/Kyiv \
+    DEBIAN_FRONTEND=noninteractive
 
 WORKDIR /app
 
 RUN apt-get update \
-    && apt-get install -y --no-install-recommends \
+    && DEBIAN_FRONTEND=noninteractive apt-get install -y --no-install-recommends \
         ca-certificates \
         curl \
         openjdk-17-jre-headless \
