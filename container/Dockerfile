@@ -13,10 +13,10 @@ ENV PYTHONDONTWRITEBYTECODE=1 \
 WORKDIR /app
 
 RUN apt-get update \
-    && DEBIAN_FRONTEND=noninteractive apt-get install -y --no-install-recommends \
+    && apt-get install -y --no-install-recommends \
         ca-certificates \
         curl \
-        openjdk-17-jre-headless \
+        default-jre-headless \
         tzdata \
     && rm -rf /var/lib/apt/lists/*
 
