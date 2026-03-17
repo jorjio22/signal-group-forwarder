@@ -1,0 +1,73 @@
+{% extends "base.html" %}
+{% block title %}Settings{% endblock %}
+{% block content %}
+<section class="page-header">
+  <div>
+    <p class="eyebrow">Configuration</p>
+    <h2>Runtime Settings</h2>
+    <p class="muted">Changes are saved immediately and applied through supervisor reconcile without restarting the app.</p>
+  </div>
+</section>
+
+<section class="content-grid">
+  <article class="panel">
+    <div class="panel-heading">
+      <div>
+        <p class="eyebrow">Forwarding Policy</p>
+        <h3>Current Settings</h3>
+      </div>
+    </div>
+
+    {% if saved %}
+    <div class="notice success">Settings saved.</div>
+    {% endif %}
+    {% if applied %}
+    <div class="notice success">Supervisor reconcile applied.</div>
+    {% endif %}
+    {% if error %}
+    <div class="notice error">{{ error }}</div>
+    {% endif %}
+
+    <form method="post" action="/actions/settings/save">
+      <label for="backlog_minutes">Backlog window (minutes)</label>
+      <input id="backlog_minutes" name="backlog_minutes" type="number" min="0" value="{{ settings.backlog_minutes }}" required>
+
+      <label for="quiet_start_local">Quiet start (HH:MM)</label>
+      <input id="quiet_start_local" name="quiet_start_local" type="time" value="{{ settings.quiet_start_local }}" required>
+
+      <label for="quiet_end_local">Quiet end (HH:MM)</label>
+      <input id="quiet_end_local" name="quiet_end_local" type="time" value="{{ settings.quiet_end_local }}" required>
+
+      <label for="rate_limit_seconds">Rate limit (seconds)</label>
+      <input id="rate_limit_seconds" name="rate_limit_seconds" type="number" min="0" value="{{ settings.rate_limit_seconds }}" required>
+
+      <div class="button-row">
+        <button type="submit">Save settings</button>
+      </div>
+    </form>
+  </article>
+
+  <article class="panel">
+    <div class="panel-heading">
+      <div>
+        <p class="eyebrow">Supervisor</p>
+        <h3>Apply State</h3>
+      </div>
+    </div>
+    <dl class="kv compact">
+      <dt>Runtime Eligible</dt>
+      <dd>{{ supervisor.runtime_eligible }}</dd>
+      <dt>Account Ready</dt>
+      <dd>{{ supervisor.account_ready }}</dd>
+      <dt>Groups Ready</dt>
+      <dd>{{ supervisor.groups_ready }}</dd>
+      <dt>Settings Ready</dt>
+      <dd>{{ supervisor.settings_ready }}</dd>
+      <dt>Worker Action</dt>
+      <dd>{{ supervisor.worker_action }}</dd>
+      <dt>Last Reconcile Reason</dt>
+      <dd>{{ supervisor.last_reconcile_reason or "None" }}</dd>
+    </dl>
+  </article>
+</section>
+{% endblock %}

@@ -1,0 +1,72 @@
+{% extends "base.html" %}
+{% block title %}Login{% endblock %}
+{% block content %}
+{% include "partials/login_status.html" %}
+
+<script>
+  const startBtn = document.getElementById("start-link-btn");
+  const cancelBtn = document.getElementById("cancel-link-btn");
+  const statusEl = document.getElementById("account-status");
+  const phoneEl = document.getElementById("account-phone");
+  const workerPlaceholderEl = document.getElementById("worker-placeholder-state");
+  const botStatusEl = document.getElementById("bot-status-pill");
+  const linkStatusBox = document.getElementById("link-status-box");
+  const qrBox = document.getElementById("qr-box");
+  const errorEl = document.getElementById("link-error");
+  const logoutForm = document.getElementById("logout-form");
+  const logoutBtn = document.getElementById("logout-btn");
+
+  function renderLinkStatus(payload) {
+    statusEl.textContent = payload.account_status;
+    phoneEl.textContent = `Phone: ${payload.phone_number || "Not linked"}`;
+    workerPlaceholderEl.textContent = `Worker state: ${payload.supervisor.worker_lifecycle_state}`;
+    errorEl.textContent = payload.last_error || "";
+    if (botStatusEl) {
+      botStatusEl.textContent = payload.bot_status.label;
+      botStatusEl.className = `status-pill ${payload.bot_status.class}`;
+    }
+
+    if (payload.link) {
+      linkStatusBox.innerHTML = `<p>Link session: <strong>${payload.link.status}</strong></p>`;
+      qrBox.innerHTML = payload.link.qr_image
+        ? `<img class="qr-image" src="${payload.link.qr_image}" alt="Signal link QR"><pre>${payload.link.qr_uri}</pre>`
+        : "<p>Waiting for QR URI from signal-cli...</p>";
+    } else {
+      linkStatusBox.innerHTML = "<p>No active link session.</p>";
+      qrBox.innerHTML = "<p>QR URI will appear here after a link session starts.</p>";
+    }
+  }
+
+  async function fetchStatus() {
+    const response = await fetch("/actions/link/status");
+    if (!response.ok) {
+      return;
+    }
+    const payload = await response.json();
+    renderLinkStatus(payload);
+  }
+
+  startBtn.addEventListener("click", async () => {
+    await fetch("/actions/link/start", { method: "POST" });
+    await fetchStatus();
+  });
+
+  cancelBtn.addEventListener("click", async () => {
+    await fetch("/actions/link/cancel", { method: "POST" });
+    await fetchStatus();
+  });
+
+  if (logoutForm && logoutBtn) {
+    logoutBtn.addEventListener("click", () => {
+      if (!window.confirm("Log out this linked Signal device and clear local state?")) {
+        return;
+      }
+      logoutBtn.disabled = true;
+      logoutBtn.textContent = "Logging out...";
+      HTMLFormElement.prototype.submit.call(logoutForm);
+    });
+  }
+
+  setInterval(fetchStatus, 3000);
+</script>
+{% endblock %}

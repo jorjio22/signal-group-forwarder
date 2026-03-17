@@ -1,0 +1,55 @@
+# Python
+__pycache__/
+*.py[cod]
+*.pyo
+*.pyd
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+.coverage
+.coverage.*
+htmlcov/
+
+# Virtual environments
+.venv/
+venv/
+env/
+
+# IDE/editor
+.idea/
+.vscode/
+
+# Build and packaging artifacts
+build/
+dist/
+*.egg-info/
+
+# Bundled Windows runtime/tooling artifacts
+runtime/
+tools/
+
+# Local runtime data and generated files
+data/
+temp/
+logs/
+*.log
+*.pid
+
+# Local databases
+*.sqlite
+*.sqlite3
+*.db
+*.db-shm
+*.db-wal
+
+# Signal auth/session artifacts
+linkdevice_qr.png
+*_qr.png
+*.session
+
+# Local secrets and machine-specific config
+.env
+.env.*
+*.local
+secrets.*
+captcha.txt

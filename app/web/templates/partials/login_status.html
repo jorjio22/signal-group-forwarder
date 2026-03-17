@@ -1,0 +1,86 @@
+<section class="page-header">
+  <div>
+    <p class="eyebrow">Authentication</p>
+    <h2>Linked Device Login</h2>
+    <p class="muted">Connect the local Signal device through QR login, monitor the session, and manage local unlink state.</p>
+  </div>
+  <div class="status-cluster">
+    <div class="status-card">
+      <span class="status-label">Bot status</span>
+      <span id="bot-status-pill" class="status-pill {{ bot_status.class }}">{{ bot_status.label }}</span>
+    </div>
+    <div class="status-card">
+      <span class="status-label">Account</span>
+      <span class="status-pill neutral" id="account-status">{{ account_state.status.value }}</span>
+    </div>
+  </div>
+</section>
+
+<section class="content-grid login-grid">
+  <article class="panel">
+    <div class="panel-heading">
+      <div>
+        <p class="eyebrow">Session</p>
+        <h3>Signal Login</h3>
+      </div>
+    </div>
+    <p id="account-phone" class="muted">Phone: {{ account_state.phone_number or "Not linked" }}</p>
+    <p id="worker-placeholder-state" class="muted">Worker state: {{ supervisor.worker_lifecycle_state }}</p>
+
+    {% if logged_out %}
+    <div class="notice success">Logged out successfully.</div>
+    {% endif %}
+    {% if error %}
+    <div class="notice error">{{ error }}</div>
+    {% endif %}
+
+    <div class="button-row">
+      <button id="start-link-btn" type="button">Start QR login</button>
+      <button id="cancel-link-btn" type="button" class="secondary">Cancel</button>
+    </div>
+
+    <div id="link-status-box" class="status-inline">
+      {% if link_session %}
+      <p>Link session: <strong>{{ link_session.status }}</strong></p>
+      {% else %}
+      <p>No active link session.</p>
+      {% endif %}
+    </div>
+
+    <p id="link-error" class="error-text">
+      {% if account_state.last_error %}{{ account_state.last_error }}{% endif %}
+    </p>
+  </article>
+
+  <article class="panel">
+    <div class="panel-heading">
+      <div>
+        <p class="eyebrow">QR</p>
+        <h3>Scan to Link</h3>
+      </div>
+    </div>
+    <div id="qr-box" class="qr-box">
+      {% if link_session and link_session.qr_image %}
+      <img class="qr-image" src="{{ link_session.qr_image }}" alt="Signal link QR">
+      <pre>{{ link_session.qr_uri }}</pre>
+      {% else %}
+      <p>QR URI will appear here after a link session starts.</p>
+      {% endif %}
+    </div>
+  </article>
+</section>
+
+<section class="panel">
+  <div class="panel-heading">
+    <div>
+      <p class="eyebrow">Reset</p>
+      <h3>Logout</h3>
+    </div>
+  </div>
+  <p class="muted">Logout removes the linked Signal device locally and returns the app to the unlinked state.</p>
+  <form id="logout-form" method="post" action="/actions/logout">
+    <div class="button-row">
+      <button id="logout-btn" type="button" class="danger">Log out linked device</button>
+    </div>
+  </form>
+</section>

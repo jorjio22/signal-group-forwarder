@@ -1,0 +1,131 @@
+{% extends "base.html" %}
+{% block title %}Dashboard{% endblock %}
+{% block content %}
+<section class="page-header">
+  <div>
+    <p class="eyebrow">Overview</p>
+    <h2>Dashboard</h2>
+    <p class="muted">Current bot state, linked account health, routing defaults, and live runtime output.</p>
+  </div>
+  <div class="status-cluster">
+    <div class="status-card">
+      <span class="status-label">Bot status</span>
+      <span class="status-pill {{ bot_status.class }}">{{ bot_status.label }}</span>
+    </div>
+    <div class="status-card">
+      <span class="status-label">Account</span>
+      <span class="status-pill neutral">{{ account_state.status.value }}</span>
+    </div>
+  </div>
+</section>
+
+<section class="metrics-grid">
+  <article class="panel metric-card">
+    <span class="metric-label">Linked Account</span>
+    <strong class="metric-value">{{ account_state.phone_number or "Not linked" }}</strong>
+    <span class="muted">Status: {{ account_state.status.value }}</span>
+  </article>
+  <article class="panel metric-card">
+    <span class="metric-label">Worker Lifecycle</span>
+    <strong class="metric-value">{{ supervisor.worker_lifecycle_state }}</strong>
+    <span class="muted">JSON-RPC: {{ runtime_state.jsonrpc_state.value }}</span>
+  </article>
+  <article class="panel metric-card">
+    <span class="metric-label">Supervisor</span>
+    <strong class="metric-value">{{ "Eligible" if supervisor.runtime_eligible else "Waiting" }}</strong>
+    <span class="muted">{{ supervisor.worker_action }}</span>
+  </article>
+  <article class="panel metric-card">
+    <span class="metric-label">Rate Limit</span>
+    <strong class="metric-value">{{ settings.rate_limit_seconds }}s</strong>
+    <span class="muted">Backlog: {{ settings.backlog_minutes }} min</span>
+  </article>
+</section>
+
+<section class="content-grid">
+  <article class="panel">
+    <div class="panel-heading">
+      <div>
+        <p class="eyebrow">Routing</p>
+        <h3>Forwarding Defaults</h3>
+      </div>
+    </div>
+    <dl class="kv compact">
+      <dt>Source Group</dt>
+      <dd>{{ settings.source_group_name or "Not selected" }}</dd>
+      <dt>Target Group</dt>
+      <dd>{{ settings.target_group_name or "Not selected" }}</dd>
+      <dt>Quiet Hours</dt>
+      <dd>{{ settings.quiet_start_local }} - {{ settings.quiet_end_local }} {{ settings.quiet_timezone }}</dd>
+      <dt>Backlog Window</dt>
+      <dd>{{ settings.backlog_minutes }} minute(s)</dd>
+      <dt>Rate Limit</dt>
+      <dd>{{ settings.rate_limit_seconds }} second(s)</dd>
+    </dl>
+  </article>
+
+  <article class="panel">
+    <div class="panel-heading">
+      <div>
+        <p class="eyebrow">Runtime</p>
+        <h3>Execution State</h3>
+      </div>
+    </div>
+    <dl class="kv compact">
+      <dt>Worker</dt>
+      <dd>{{ runtime_state.worker_state.value }}</dd>
+      <dt>JSON-RPC</dt>
+      <dd>{{ runtime_state.jsonrpc_state.value }}</dd>
+      <dt>Last Reconcile</dt>
+      <dd>{{ supervisor.last_reconcile_reason or "None" }}</dd>
+      <dt>Cached Groups</dt>
+      <dd>{{ known_groups|length }}</dd>
+    </dl>
+  </article>
+</section>
+
+<section class="panel">
+  <div class="panel-heading">
+    <div>
+      <p class="eyebrow">Logs</p>
+      <h3>Live Log Tail</h3>
+    </div>
+    <div class="toolbar">
+      <label class="filter-inline" for="log-level-filter">Level</label>
+      <select id="log-level-filter" class="compact-select">
+        <option value="ALL">ALL</option>
+        <option value="INFO">INFO</option>
+        <option value="WARNING">WARNING</option>
+        <option value="ERROR">ERROR</option>
+      </select>
+    </div>
+  </div>
+  <div class="log-console" id="log-console">
+    {% for item in log_tail %}
+    <div class="log-line" data-level="{{ item.level }}">
+      <span class="log-badge {{ item.level|lower }}">{{ item.level }}</span>
+      <span class="log-ts">{{ item.ts }}</span>
+      <span class="log-message">{{ item.message }}</span>
+    </div>
+    {% else %}
+    <div class="log-line empty" data-level="INFO">
+      <span class="log-message">No live logs yet.</span>
+    </div>
+    {% endfor %}
+  </div>
+</section>
+
+<script>
+  const logFilter = document.getElementById("log-level-filter");
+  const logLines = Array.from(document.querySelectorAll(".log-line"));
+
+  if (logFilter) {
+    logFilter.addEventListener("change", () => {
+      const selected = logFilter.value;
+      for (const line of logLines) {
+        line.style.display = selected === "ALL" || line.dataset.level === selected ? "grid" : "none";
+      }
+    });
+  }
+</script>
+{% endblock %}

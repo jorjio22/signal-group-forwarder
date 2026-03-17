@@ -1,0 +1,116 @@
+{% extends "base.html" %}
+{% block title %}Status{% endblock %}
+{% block content %}
+<section class="page-header">
+  <div>
+    <p class="eyebrow">Operations</p>
+    <h2>Status</h2>
+    <p class="muted">Detailed runtime diagnostics for account state, worker lifecycle, and supervisor decisions.</p>
+  </div>
+  <div class="status-cluster">
+    <div class="status-card">
+      <span class="status-label">Bot status</span>
+      <span class="status-pill {{ bot_status.class }}">{{ bot_status.label }}</span>
+    </div>
+  </div>
+</section>
+
+{% if worker_restarted %}
+<section class="panel">
+  <div class="notice success">Worker restart completed.</div>
+</section>
+{% endif %}
+
+<section class="content-grid">
+  <article class="panel">
+    <div class="panel-heading">
+      <div>
+        <p class="eyebrow">Identity</p>
+        <h3>Account State</h3>
+      </div>
+    </div>
+    <dl class="kv compact">
+      <dt>Status</dt>
+      <dd>{{ account_state.status.value }}</dd>
+      <dt>Signal Account</dt>
+      <dd>{{ account_state.signal_account or "None" }}</dd>
+      <dt>Phone Number</dt>
+      <dd>{{ account_state.phone_number or "None" }}</dd>
+      <dt>Device ID</dt>
+      <dd>{{ account_state.device_id or "None" }}</dd>
+    </dl>
+  </article>
+
+  <article class="panel">
+    <div class="panel-heading">
+      <div>
+        <p class="eyebrow">Execution</p>
+        <h3>Runtime State</h3>
+      </div>
+    </div>
+    <dl class="kv compact">
+      <dt>Worker</dt>
+      <dd>{{ runtime_state.worker_state.value }}</dd>
+      <dt>JSON-RPC</dt>
+      <dd>{{ runtime_state.jsonrpc_state.value }}</dd>
+      <dt>Last Reconnect</dt>
+      <dd>{{ runtime_state.last_reconnect_at_ms or "None" }}</dd>
+      <dt>Last Quiet Exit</dt>
+      <dd>{{ runtime_state.last_quiet_exit_at_ms or "None" }}</dd>
+    </dl>
+  </article>
+</section>
+
+<section class="panel">
+  <div class="panel-heading">
+    <div>
+      <p class="eyebrow">Control</p>
+      <h3>Supervisor</h3>
+    </div>
+  </div>
+  <dl class="kv compact">
+    <dt>Runtime Eligible</dt>
+    <dd>{{ supervisor.runtime_eligible }}</dd>
+    <dt>Worker Action</dt>
+    <dd>{{ supervisor.worker_action }}</dd>
+    <dt>Worker Lifecycle</dt>
+    <dd>{{ supervisor.worker_lifecycle_state }}</dd>
+    <dt>Last Reconcile</dt>
+    <dd>{{ supervisor.last_reconcile_reason or "None" }}</dd>
+  </dl>
+  <form method="post" action="/actions/worker/restart">
+    <div class="button-row">
+      <button type="submit">Restart worker</button>
+    </div>
+  </form>
+</section>
+
+<section class="content-grid">
+  <article class="panel">
+    <div class="panel-heading">
+      <div>
+        <p class="eyebrow">Transport</p>
+        <h3>WebSocket</h3>
+      </div>
+    </div>
+    <p class="muted">Connect to <code>/ws/logs</code> for live logs.</p>
+  </article>
+
+  <article class="panel">
+    <div class="panel-heading">
+      <div>
+        <p class="eyebrow">Routing</p>
+        <h3>Groups</h3>
+      </div>
+    </div>
+    <dl class="kv compact">
+      <dt>Source Group</dt>
+      <dd>{{ settings.source_group_name or "None" }}</dd>
+      <dt>Target Group</dt>
+      <dd>{{ settings.target_group_name or "None" }}</dd>
+      <dt>Cached Groups</dt>
+      <dd>{{ known_groups|length }}</dd>
+    </dl>
+  </article>
+</section>
+{% endblock %}

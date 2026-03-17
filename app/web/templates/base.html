@@ -1,0 +1,30 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>{% block title %}Signal Forwarder{% endblock %}</title>
+    <link rel="stylesheet" href="{{ url_for('static', path='app.css') }}">
+  </head>
+  <body>
+    <div class="shell">
+      <aside class="sidebar">
+        <div class="brand-block">
+          <p class="eyebrow">Admin Panel</p>
+          <h1>Signal Forwarder</h1>
+          <p class="muted">Single-account message relay control surface.</p>
+        </div>
+        <nav class="nav-grid">
+          <a href="/" class="nav-link">Dashboard</a>
+          <a href="/login" class="nav-link">Login</a>
+          <a href="/groups" class="nav-link">Groups</a>
+          <a href="/settings" class="nav-link">Settings</a>
+          <a href="/status" class="nav-link">Status</a>
+        </nav>
+      </aside>
+      <main class="shell-main">
+        {% block content %}{% endblock %}
+      </main>
+    </div>
+  </body>
+</html>

@@ -1,0 +1,125 @@
+{% extends "base.html" %}
+{% block title %}Groups{% endblock %}
+{% block content %}
+<section class="page-header">
+  <div>
+    <p class="eyebrow">Routing</p>
+    <h2>Group Selection</h2>
+    <p class="muted">Choose exactly one source group and one different target group from the linked Signal account.</p>
+  </div>
+</section>
+
+<section class="content-grid">
+  <article class="panel">
+    <div class="panel-heading">
+      <div>
+        <p class="eyebrow">Discovery</p>
+        <h3>Signal Groups</h3>
+      </div>
+    </div>
+    <p class="muted">Only Signal groups discovered from the linked account are shown here.</p>
+
+    {% if refreshed %}
+    <div class="notice success">Group list refreshed.</div>
+    {% endif %}
+    {% if saved %}
+    <div class="notice success">Group selection saved.</div>
+    {% endif %}
+    {% if error %}
+    <div class="notice error">{{ error }}</div>
+    {% endif %}
+
+    <form method="post" action="/actions/groups/refresh">
+      <div class="button-row">
+        <button type="submit">Refresh groups</button>
+      </div>
+    </form>
+
+    <div class="selection-summary">
+      <div class="summary-card">
+        <span class="summary-label">Source Group</span>
+        <strong>{{ settings.source_group_name or "Not selected" }}</strong>
+      </div>
+      <div class="summary-card">
+        <span class="summary-label">Target Group</span>
+        <strong>{{ settings.target_group_name or "Not selected" }}</strong>
+      </div>
+    </div>
+  </article>
+
+  <article class="panel">
+    <div class="panel-heading">
+      <div>
+        <p class="eyebrow">Rule</p>
+        <h3>Save Group Selection</h3>
+      </div>
+    </div>
+    <form method="post" action="/actions/groups/save">
+      <label for="source_group_id">Source group</label>
+      <select id="source_group_id" name="source_group_id" required>
+        <option value="">Select source group</option>
+        {% for group in known_groups %}
+        <option value="{{ group.group_id }}" {% if settings.source_group_id == group.group_id %}selected{% endif %}>
+          {{ group.group_name }}{% if not group.is_active %} [inactive]{% endif %}{% if group.is_blocked %} [blocked]{% endif %}
+        </option>
+        {% endfor %}
+      </select>
+
+      <label for="target_group_id">Target group</label>
+      <select id="target_group_id" name="target_group_id" required>
+        <option value="">Select target group</option>
+        {% for group in known_groups %}
+        <option value="{{ group.group_id }}" {% if settings.target_group_id == group.group_id %}selected{% endif %}>
+          {{ group.group_name }}{% if not group.is_active %} [inactive]{% endif %}{% if group.is_blocked %} [blocked]{% endif %}
+        </option>
+        {% endfor %}
+      </select>
+
+      <div class="button-row">
+        <button type="submit">Save groups</button>
+      </div>
+    </form>
+  </article>
+</section>
+
+<section class="panel">
+  <div class="panel-heading">
+    <div>
+      <p class="eyebrow">Inventory</p>
+      <h3>Discovered Groups</h3>
+    </div>
+  </div>
+  <div class="table-shell">
+    <table class="data-table">
+      <thead>
+        <tr>
+          <th>Name</th>
+          <th>State</th>
+          <th>Group ID</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for group in known_groups %}
+        <tr>
+          <td>{{ group.group_name }}</td>
+          <td>
+            {% if not group.is_active %}
+            inactive
+            {% elif group.is_blocked %}
+            blocked
+            {% else %}
+            active
+            {% endif %}
+          </td>
+          <td><code>{{ group.group_id }}</code></td>
+        </tr>
+        {% else %}
+        <tr>
+          <td colspan="3" class="muted">No Signal groups cached yet.</td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+</section>
+{% endblock %}
